@@ -1,0 +1,9 @@
+Operating System: The program should be compatible with Windows, macOS, and Linux.
+
+Python version: The program should be compatible with Python 3.6 and above.
+
+GUI toolkit: The program should be developed using the Tkinter GUI toolkit.
+
+Database: The program should be connected to a MySQL database.
+
+Third-party libraries: The program uses the MySQL library to connect to the MySQL database. You must install mysql.connector module

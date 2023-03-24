@@ -2,7 +2,7 @@
 Author:Sabin Poudel
 Date:2023/03/21
 Title:Attendance Management System using Python's GUI Library (tkinter)
-Last Modified/Edited:2023/03/21
+Last Modified/Edited:2023/03/22
 '''
 import tkinter as tk
 from tkinter import ttk
@@ -141,51 +141,138 @@ class Attendance:
             query = f"SELECT enrollment, name FROM {division_name};"
             cursor.execute(query)
             self.data = cursor.fetchall()
-            start = 150
+            start = 180
             self.checkboxes = []  # create a list to store the checkboxes
             for enrollment, name in self.data:
                 records_label = ttk.Label(login_sucess_interface, text=f"{enrollment} {name}")
-                records_label.place(x=145, y=start)
+                records_label.place(x=110, y=start)
                 checkbox = ttk.Checkbutton(login_sucess_interface)
                 checkbox.place(x=350, y=start)
                 self.checkboxes.append(checkbox)  # add the checkbox to the list
                 start += 20
         def update():
-            final_check=[]
-            selected_date = date_entry.get_date()
-            for checkbox in self.checkboxes:
-                value = checkbox.instate(['selected'])
-                final_check.append(value)
-            details_with_status=list(zip(self.data,final_check))
-            # print(details_with_status)
-            for details in details_with_status:
-                if False in details:
-                    division=divisions_combobox.get()
-                    try:
-                        enrollment=details[0][0]
-                        query = f"UPDATE {division} SET status='Absent',date_day='{selected_date}' where enrollment='{enrollment}'"
-                        cursor=self.connection.cursor()
-                        cursor.execute(query)
-                        self.connection.commit()
-                    except:
-                        messagebox.showerror("Failed","Failed to Update Attendance")
+            try:
+                final_check=[]
+                selected_date = date_entry.get_date()
+                for checkbox in self.checkboxes:
+                    value = checkbox.instate(['selected'])
+                    final_check.append(value)
+                details_with_status=list(zip(self.data,final_check))
+                for details in details_with_status:
+                    if False in details:
+                        division=divisions_combobox.get()
+                        try:
+                            enrollment=details[0][0]
+                            query = f"UPDATE {division} SET status='Absent',date_day='{selected_date}' where enrollment='{enrollment}'"
+                            cursor=self.connection.cursor()
+                            cursor.execute(query)
+                            self.connection.commit()
+                        except:
+                            messagebox.showerror("Failed","Failed to Update Attendance")
+                    else:
+                        division=divisions_combobox.get()
+                        try:
+                            enrollment=details[0][0]
+                            query = f"UPDATE {division} SET status='Present',date_day='{selected_date}' where enrollment='{enrollment}'"
+                            cursor=self.connection.cursor()
+                            cursor.execute(query)
+                            self.connection.commit()
+                        except:
+                            messagebox.showerror("Failed","Failed to Update Attendance")
                 else:
-                    division=divisions_combobox.get()
-                    try:
-                        enrollment=details[0][0]
-                        query = f"UPDATE {division} SET status='Present',date_day='{selected_date}' where enrollment='{enrollment}'"
-                        cursor=self.connection.cursor()
-                        cursor.execute(query)
-                        self.connection.commit()
-                    except:
-                        messagebox.showerror("Failed","Failed to Update Attendance")
-            else:
-                messagebox.showinfo("Sucess","Attendance Updated Sucessfully")
+                    messagebox.showinfo("Sucess","Attendance Updated Sucessfully")
+            except:
+                messagebox.showerror("Select Student","Please Select Student and division to update attendance")
         def cleardata():
             # Clear the labels and checkboxes
             for widget in login_sucess_interface.winfo_children():
                 if isinstance(widget, ttk.Label) or isinstance(widget, ttk.Checkbutton):
                     widget.destroy()
+        def change_pass():
+            change_pas_interface=tk.Tk()
+            #----old password----#
+            old_password_label=tk.Label(change_pas_interface,text="Old Password")
+            old_password_label.place(x=65,y=30)
+            old_password_entry=ttk.Entry(change_pas_interface)
+            old_password_entry.place(x=40,y=50)
+            #-----new password-----#
+            new_password_label=tk.Label(change_pas_interface,text="New Password")
+            new_password_label.place(x=65,y=80)
+            new_password_entry=ttk.Entry(change_pas_interface)
+            new_password_entry.place(x=40,y=100)
+            #----callback functions----#
+            def change():
+                old_pass=old_password_entry.get()
+                new_password=new_password_entry.get()
+                current_username=self.username_for_login_var.get()
+                current_password=self.password_for_login_var.get()
+                if old_pass!=current_password:
+                    messagebox.showerror("Password Did not match","Password Didnot Matched check again")
+                    change_pas_interface.destroy()
+                else:
+                    try:
+                        cursor=self.connection.cursor()
+                        query=f"UPDATE admins set password='{new_password}' where username='{current_username}'"
+                        cursor.execute(query)
+                        self.connection.commit()
+                        messagebox.showinfo("Update Sucess","Password Updated Successfully")
+                        change_pas_interface.destroy()
+                    except:
+                        messagebox.showerror("Error","Error updating Password")
+            #-----update password----#
+            update_password_button=ttk.Button(change_pas_interface,text="Change",command=change)
+            update_password_button.place(x=60,y=130)
+            #-----title-----#
+            change_pas_interface.title("Change Password")
+            #----mainloop----#
+            change_pas_interface.mainloop()
+        def add_student():
+            add_student_window=tk.Tk()
+            #-----title-----#
+            add_student_window.title("Add Student")
+            #---geometry-----#
+            add_student_window.geometry('300x300')
+            add_student_window.resizable(False,False)
+            #------enrollment label and entry----#
+            enrollment_var=tk.StringVar()
+            enrollment_label=tk.Label(add_student_window,text="Enrollment")
+            enrollment_label.place(x=130,y=30)
+            enrollment_entry=ttk.Entry(add_student_window,textvariable=enrollment_var)
+            enrollment_entry.place(x=100,y=50)
+            #------name entry------#
+            name_var=tk.StringVar()
+            name_label=tk.Label(add_student_window,text="Name")
+            name_label.place(x=140,y=80)
+            name_entry=ttk.Entry(add_student_window,textvariable=name_var)
+            name_entry.place(x=100,y=100)
+            #----select division label----#
+            select_division_label_combo=tk.Label(add_student_window,text="Select Division")
+            select_division_label_combo.place(x=130,y=130)
+            #-----division combobox----#
+            select_division_combobox=ttk.Combobox(add_student_window,state="readonly",width=18)
+            select_division_combobox['values']=('CEA','CEB','CEC','CED','CED')
+            select_division_combobox.current(0)
+            select_division_combobox.place(x=100,y=150)
+            #----callback function---#
+            def add_new_student():
+                enrollment =enrollment_entry.get()
+                name=name_entry.get()
+                division=select_division_combobox.get()
+                if len(enrollment)==0 or len(name)==0 or len(division)==0:
+                    messagebox.showwarning("No Empty Fields","Please Fill the details")
+                else:
+                    try:
+                        cursor=self.connection.cursor()
+                        query=f"INSERT INTO {division} (enrollment,name) values ('{enrollment}','{name}')"
+                        cursor.execute(query)
+                        self.connection.commit()
+                        messagebox.showinfo("Sucess","Student's Details Added")
+                    except:
+                        messagebox.showwarning("Student Already exits","Student's Details Already Exits")
+            #----add data----# 
+            add_student_btn=ttk.Button(add_student_window,text="Add Student",command=add_new_student)
+            add_student_btn.place(x=128,y=180)
+            add_student_window.mainloop()
         #------date entry------#
         date_entry = tkcalendar.DateEntry(login_sucess_interface, width=12, background='darkblue', foreground='white', borderwidth=2)
         date_entry.place(x=190,y=110)
@@ -195,10 +282,16 @@ class Attendance:
         #-----clear data-------#
         clear_data_button=ttk.Button(login_sucess_interface,text="Clear Data",command=cleardata)
         clear_data_button.place(x=360,y=110)
+        #----change password button-----#
+        change_password_button=ttk.Button(login_sucess_interface,text="Change Password",command=change_pass)
+        change_password_button.place(x=330,y=140)
         #----update attendance button-----#
         update_attendance=ttk.Button(login_sucess_interface,text="Update Attendance",command=update)
         update_attendance.place(x=180,y=400)
+        #-----add student----#
+        add_student_button=ttk.Button(login_sucess_interface,text="Add Student",command=add_student)
+        add_student_button.place(x=10,y=140)
+        #-----------main loop-------#
         login_sucess_interface.mainloop()
-        
 if __name__=="__main__":
     a= Attendance()

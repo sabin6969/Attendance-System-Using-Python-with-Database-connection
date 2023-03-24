@@ -5,7 +5,6 @@ Title:Attendance Management System using Python's GUI Library (tkinter)
 Last Modified/Edited:2023/03/22
 '''
 import tkinter as tk
-from tkinter import ttk
 import pdb
 from tkinter import ttk
 import mysql.connector
@@ -182,7 +181,7 @@ class Attendance:
                 else:
                     messagebox.showinfo("Sucess","Attendance Updated Sucessfully")
             except:
-                messagebox.showerror("Select Student","Please Select Student and division to update attendance")
+                messagebox.showerror("Select Student","Please Select Student to update attendance")
         def cleardata():
             # Clear the labels and checkboxes
             for widget in login_sucess_interface.winfo_children():

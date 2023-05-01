@@ -1,8 +1,8 @@
 '''
 Author:Sabin Poudel
-Date:2023/03/21
+Date:2023/04/29
 Title:Attendance Management System using Python's GUI Library (tkinter)
-Last Modified/Edited:2023/03/22
+Last Modified/Edited:2023/03/25
 '''
 import tkinter as tk
 import pdb
@@ -11,7 +11,7 @@ import mysql.connector
 from tkinter import messagebox
 import time
 import tkcalendar
-
+ 
 class Attendance:
     def __init__(self):   
          #---------------Initial Window-------#
@@ -23,23 +23,27 @@ class Attendance:
         #----title-----#
         self.root.title("Attendance Management System")
         #----geometry----#
-        self.root.geometry('300x300')
+        self.root.geometry('500x300')
         #-----resizeable----#
         self.root.resizable(False,False)
         #----title of this program----#
         title_of_this_program=tk.Label(self.root,text="Attendance Management System",font=('sans serif',10),fg='blue')
-        title_of_this_program.place(x=60,y=10)
+        title_of_this_program.place(x=250,y=10)
         #--------labels and titles for login------#
         username_login_label=tk.Label(self.root,text="Username")
-        username_login_label.place(x=120,y=40)
+        username_login_label.place(x=300,y=40)
         username_login_entry=ttk.Entry(self.root,textvariable=self.username_for_login_var)
-        username_login_entry.place(x=90,y=60)
+        username_login_entry.place(x=270,y=60)
         username_login_entry.focus()
         #------labels and entry for passwords-----#
         password_login_label=tk.Label(self.root,text="Password")
-        password_login_label.place(x=120,y=90)
-        password_login_entry=ttk.Entry(self.root,textvariable=self.password_for_login_var)
-        password_login_entry.place(x=90,y=110)
+        password_login_label.place(x=300,y=90)
+        password_login_entry=ttk.Entry(self.root,textvariable=self.password_for_login_var,show="*")
+        password_login_entry.place(x=270,y=110)
+        # Attendance Images
+        attendance_image = tk.PhotoImage(file="attendance image.png")
+        attendance_image_label=tk.Label(image=attendance_image)
+        attendance_image_label.place(x=15,y=15)
         #----------callback functions------#
         def login():
             self.loggedin(self.username_for_login_var.get(),self.password_for_login_var.get())
@@ -47,13 +51,13 @@ class Attendance:
             self.signup()
         #------loginbutton----------#
         login_button=ttk.Button(self.root,text="Login",command=login)
-        login_button.place(x=115,y=140)
+        login_button.place(x=295,y=140)
         #-----signupbutton---------#
         signup_button=ttk.Button(self.root,text="Signup",command=signup)
-        signup_button.place(x=115,y=170)
+        signup_button.place(x=295,y=170)
         #----------database connection-----------#
         try:
-            self.connection = mysql.connector.connect(host="localhost",password="",username="root",database="pythonproject")
+            self.connection = mysql.connector.connect(host="localhost",password="poudeL46@",username="root",database="pythonproject")
         except:
             messagebox.showerror("Database not found","Couldnot connect to database")
             self.root.destroy()
@@ -89,7 +93,7 @@ class Attendance:
         #-------------lables for password and entry-----#
         password_for_signup_label=tk.Label(signup_interface,text="Define Password")
         password_for_signup_label.place(x=105,y=90)
-        password_entry_for_signup=ttk.Entry(signup_interface,textvariable=self.password_for_signup_var)
+        password_entry_for_signup=ttk.Entry(signup_interface,textvariable=self.password_for_signup_var,show="*")
         password_entry_for_signup.place(x=90,y=110)
         #----callback function----#
         def createaccount():
@@ -99,14 +103,20 @@ class Attendance:
         create_account_button.place(x=105,y=140)
         signup_interface.mainloop()
     def createaccountwithus(self,username,password):
-        query=f"INSERT INTO admins values('{username}','{password}')"
-        cursor=self.connection.cursor()
-        try:
-            cursor.execute(query)
-            messagebox.showinfo("Account Created","Account Created Sucess,Proceed towards login")
-            self.connection.commit()
-        except:
-            messagebox.showerror("Username already in use","This username is already in use choose another username")
+        if username and password:
+            if username.isalpha()==True:
+                query=f"INSERT INTO admins values('{username}','{password}')"
+                cursor=self.connection.cursor()
+                try:
+                    cursor.execute(query)
+                    messagebox.showinfo("Account Created","Account Created Sucess,Proceed towards login")
+                    self.connection.commit()
+                except:
+                    messagebox.showerror("Username already in use","This username is already in use choose another username")
+            else:
+                messagebox.showerror("Username Error","Username must be alphabet")
+        else:
+            messagebox.showerror("Required","Username and Password Required")
     def login_sucess(self,username):
         self.root.destroy()
         login_sucess_interface=tk.Tk()
@@ -117,7 +127,7 @@ class Attendance:
         login_sucess_interface.resizable(False,False)
         #-------date display----#
         t = time.ctime()
-        date=t.split(' ')
+        date=t.split(' ')    
         todays_date=date[0]+" "+date[1]+" "+date[2]+" "+date[-1]
         date_label=tk.Label(login_sucess_interface,text="{}".format(todays_date),font=("sans serif",10))
         date_label.place(x=340,y=0)
@@ -190,6 +200,7 @@ class Attendance:
         def change_pass():
             change_pas_interface=tk.Tk()
             #----old password----#
+            change_pas_interface.resizable(False,False)
             old_password_label=tk.Label(change_pas_interface,text="Old Password")
             old_password_label.place(x=65,y=30)
             old_password_entry=ttk.Entry(change_pas_interface)
@@ -214,6 +225,7 @@ class Attendance:
                         query=f"UPDATE admins set password='{new_password}' where username='{current_username}'"
                         cursor.execute(query)
                         self.connection.commit()
+                        self.connection.close()
                         messagebox.showinfo("Update Sucess","Password Updated Successfully")
                         change_pas_interface.destroy()
                     except:
@@ -249,7 +261,7 @@ class Attendance:
             select_division_label_combo.place(x=130,y=130)
             #-----division combobox----#
             select_division_combobox=ttk.Combobox(add_student_window,state="readonly",width=18)
-            select_division_combobox['values']=('CEA','CEB','CEC','CED','CED')
+            select_division_combobox['values']=('CEA','CEB','CEC','CED','CEE')
             select_division_combobox.current(0)
             select_division_combobox.place(x=100,y=150)
             #----callback function---#

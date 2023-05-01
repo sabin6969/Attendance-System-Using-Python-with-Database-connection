@@ -1,6 +1,6 @@
-Operating System: The program should be compatible with Windows, macOS, and Linux.
+Operating System: The program is compatible with Windows, macOS, and Linux.
 
-Python version: The program should be compatible with Python 3.6 and above.
+Python version: The program is compatible with Python 3.6 and above.
 
 GUI toolkit: The program should be developed using the Tkinter GUI toolkit.
 
